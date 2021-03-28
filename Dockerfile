@@ -190,23 +190,13 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     # ----
     tzdata \
     unzip \
-    nano-tiny \
+    nano-tiny && \
+	apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
+	apt-get install -y libaio-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create alternative for nano -> nano-tiny
 RUN update-alternatives --install /usr/bin/nano nano /bin/nano-tiny 10
-
-# Switch back to jovyan to avoid accidental container runs as root
-USER $NB_UID
-
-# Scipy Image
-USER root
-
-# ffmpeg for matplotlib anim & dvipng+cm-super for latex labels
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
-	apt-get install -y libaio-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Oracle Instant Client 21.1.0_x64
 COPY instantclient-basic-linux.x64-21.1.0.0.0.zip /opt/oracle/
