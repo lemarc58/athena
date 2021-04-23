@@ -1,11 +1,10 @@
-# Base Image
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 # Ubuntu 20.04 (focal)
 # https://hub.docker.com/_/ubuntu/?tab=tags&name=focal
 # OS/ARCH: linux/amd64
-ARG ROOT_CONTAINER=ubuntu:focal-20210217@sha256:e3d7ff9efd8431d9ef39a144c45992df5502c995b9ba3c53ff70c5b52a848d9c
+ARG ROOT_CONTAINER=ubuntu:focal-20210401@sha256:5403064f94b617f7975a19ba4d1a1299fd584397f6ee4393d0e16744ed11aab1
 
 ARG BASE_CONTAINER=$ROOT_CONTAINER
 FROM $BASE_CONTAINER
@@ -53,6 +52,7 @@ RUN apt-get -q update \
     locales \
     fonts-liberation \
     run-one \
+    python3-dev \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
@@ -133,9 +133,9 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
-    'notebook=6.2.0' \
+    'notebook=6.3.0' \
     'jupyterhub=1.3.0' \
-    'jupyterlab=3.0.12' && \
+    'jupyterlab=3.0.14' && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -164,14 +164,6 @@ RUN sed -re "s/c.NotebookApp/c.ServerApp/g" \
 
 RUN fix-permissions /etc/jupyter/
 
-# Switch back to jovyan to avoid accidental container runs as root
-USER $NB_UID
-
-WORKDIR $HOME
-
-# Minimal Image
-USER root
-
 # Install all OS dependencies for fully functional notebook server
 RUN apt-get update && apt-get install -yq --no-install-recommends \
     build-essential \
@@ -191,27 +183,11 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     tzdata \
     unzip \
     nano-tiny && \
-	apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
-	apt-get install -y libaio-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create alternative for nano -> nano-tiny
 RUN update-alternatives --install /usr/bin/nano nano /bin/nano-tiny 10
-
-# Install Oracle Instant Client 21.1.0_x64
-COPY instantclient-basic-linux.x64-21.1.0.0.0.zip /opt/oracle/
-RUN unzip /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip -d /opt/oracle/ && \
-	rm /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip
-
-# Install Sqlplus
-COPY instantclient-sqlplus-linux.x64-21.1.0.0.0.zip /opt/oracle/
-RUN unzip /opt/oracle/instantclient-sqlplus-linux.x64-21.1.0.0.0.zip -d /opt/oracle/ && \
-	rm /opt/oracle/instantclient-sqlplus-linux.x64-21.1.0.0.0.zip
-
-# Setup Oracle Client Configuration
-RUN echo "export PATH=/opt/oracle/instantclient_21_1:$PATH" >> /etc/bash.bashrc && \ 
-	sh -c "echo /opt/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf" && \
-	ldconfig
 
 USER $NB_UID
 
@@ -223,15 +199,15 @@ RUN conda install --quiet --yes \
     'bottleneck=1.3.*' \
     'cloudpickle=1.6.*' \
     'cython=0.29.*' \
-    'dask=2021.3.*' \
+    'dask=2021.4.*' \
     'dill=0.3.*' \
     'h5py=3.1.*' \
     'ipywidgets=7.6.*' \
-    'ipympl=0.6.*'\
-    'matplotlib-base=3.3.*' \
+    'ipympl=0.7.*'\
+    'matplotlib-base=3.4.*' \
     'numba=0.53.*' \
     'numexpr=2.7.*' \
-    'pandas=1.2.*' \
+    'pandas=1.2.3' \
     'patsy=0.5.*' \
     'protobuf=3.15.*' \
     'pytables=3.6.*' \
@@ -245,32 +221,77 @@ RUN conda install --quiet --yes \
     'vincent=0.4.*' \
     'widgetsnbextension=3.5.*'\
     'xlrd=2.0.*' \
-	'cx_oracle=8.1.0' \
-	'boto3=1.17.*' \
-	'pyarrow=3.*.*' \
-	'plotly=4.14.*' \
-	'openpyxl' \
-	'xlsxwriter' \
-	'xgboost' \
-	'catboost' \
-	'hyperopt' \
-	'lime' \
-	'eli5' \
-	'shap' \
-	'dash' \
-	'jupyter_bokeh=3.0.0' && \
+    'cx_oracle=8.1.0' \
+    'boto3=1.17.*' \
+    'pyarrow=3.*.*' \
+    'plotly=4.14.*' \
+    'openpyxl' \
+    'xlsxwriter' \
+    'xgboost' \
+    'catboost' \
+    'hyperopt' \
+    'lime' \
+    'eli5' \
+    'shap' \
+    'dash' \
+    'lz4' \
+    'python-blosc' \
+    'jupyter_bokeh' \
+    'pdfminer' \
+    'pep8' \
+    'Pillow' \
+    'pkginfo' \
+    'pylint' \
+    'pytesseract' \
+    'pytest' \
+    'pytest-astropy' \
+    'pyzbar' \
+    'sklearn2pmml' \
+    'sortedcollections' \
+    'Sphinx' \
+    'wordcloud' \
+    'yellowbrick' \
+    'zbar' \
+    'xarray' && \
+    conda install -c anaconda ephem && \
+    conda install -c conda-forge pystan && \
+    conda install -c conda-forge fbprophet && \
     conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
-	
+
 # Install Python 3 pip packages
-RUN pip install pandas_profiling trino scikit-optimize impyute --no-cache-dir && \ 
-	pip install tensorflow --no-cache-dir && \ 
-	pip install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html --no-cache-dir && \ 
-	pip install nltk --no-cache-dir && \ 
-	pip install snowballstemmer --no-cache-dir && \
-	fix-permissions "${CONDA_DIR}" && \
-	fix-permissions "/home/${NB_USER}"
+RUN pip install pandas_profiling \
+    pyspark \
+    trino \
+    scikit-optimize \
+    impyute \
+    tensorflow \
+    nltk \
+    cufflinks \
+    dash-bootstrap-components \
+    dataframe-image \
+    diagrams \
+    fancyimpute \
+    fasttext \
+    gensim \
+    glob2 \
+    imbalanced-learn \
+    ing-theme-matplotlib \
+    ITU-Turkish-NLP-Pipeline-Caller \
+    JPype1 \
+    kerasplotlib \
+    knnimpute \
+    lightgbm \
+    multidict \
+    multiprocess \
+    tensorflow-datasets \
+    pmdarima \
+    opencv-contrib-python-headless \
+    snowballstemmer --no-cache-dir && \
+    pip install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html --no-cache-dir && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 
 # Import matplotlib the first time to build the font cache.
 ENV XDG_CACHE_HOME="/home/${NB_USER}/.cache/"
@@ -279,6 +300,66 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
 
 USER root
+
+# Spark dependencies
+# Default values can be overridden at build time
+# (ARGS are in lower case to distinguish them from ENV)
+ARG spark_version="3.1.1"
+ARG hadoop_version="3.2"
+ARG spark_checksum="E90B31E58F6D95A42900BA4D288261D71F6C19FA39C1CB71862B792D1B5564941A320227F6AB0E09D946F16B8C1969ED2DEA2A369EC8F9D2D7099189234DE1BE"
+ARG openjdk_version="11"
+
+ENV APACHE_SPARK_VERSION="${spark_version}" \
+    HADOOP_VERSION="${hadoop_version}"
+
+RUN apt-get -y update && \
+    apt-get install --no-install-recommends -y \
+    "openjdk-${openjdk_version}-jre-headless" \
+    ca-certificates-java && \
+    apt-get install -y tesseract-ocr && \
+    apt-get install -y imagemagick && \
+    apt-get install -y libaio-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Spark installation
+WORKDIR /tmp
+# Using the preferred mirror to download Spark
+# hadolint ignore=SC2046
+RUN wget -q $(wget -qO- https://www.apache.org/dyn/closer.lua/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz\?as_json | \
+    python -c "import sys, json; content=json.load(sys.stdin); print(content['preferred']+content['path_info'])") && \
+    echo "${spark_checksum} *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
+    tar xzf "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" -C /usr/local --owner root --group root --no-same-owner && \
+    rm "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz"
+
+WORKDIR /usr/local
+
+# Configure Spark
+ENV SPARK_HOME=/usr/local/spark
+ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx8192M --driver-java-options=-Dlog4j.logLevel=info" \
+    PATH=$PATH:$SPARK_HOME/bin
+
+RUN ln -s "spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}" spark && \
+    # Add a link in the before_notebook hook in order to source automatically PYTHONPATH
+    mkdir -p /usr/local/bin/before-notebook.d && \
+    ln -s "${SPARK_HOME}/sbin/spark-config.sh" /usr/local/bin/before-notebook.d/spark-config.sh
+
+# Fix Spark installation for Java 11 and Apache Arrow library
+# see: https://github.com/apache/spark/pull/27356, https://spark.apache.org/docs/latest/#downloading
+RUN cp -p "$SPARK_HOME/conf/spark-defaults.conf.template" "$SPARK_HOME/conf/spark-defaults.conf" && \
+    echo 'spark.driver.extraJavaOptions -Dio.netty.tryReflectionSetAccessible=true' >> $SPARK_HOME/conf/spark-defaults.conf && \
+    echo 'spark.executor.extraJavaOptions -Dio.netty.tryReflectionSetAccessible=true' >> $SPARK_HOME/conf/spark-defaults.conf
+
+# Install Oracle Instant Client 21.1.0.0.0_x64 and sqlplus
+COPY instantclient-basic-linux.x64-21.1.0.0.0.zip instantclient-sqlplus-linux.x64-21.1.0.0.0.zip /opt/oracle/
+COPY zemberek-full.jar /opt/apps/
+
+RUN unzip /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip -d /opt/oracle/ && \
+    rm /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip && \
+    unzip /opt/oracle/instantclient-sqlplus-linux.x64-21.1.0.0.0.zip -d /opt/oracle/ && \
+    rm /opt/oracle/instantclient-sqlplus-linux.x64-21.1.0.0.0.zip && \
+    echo "export PATH=/opt/oracle/instantclient_21_1:$PATH" >> /etc/bash.bashrc && \ 
+    sh -c "echo /opt/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf" && \
+    ldconfig
 
 ARG NB_GID_OC="1000730000"
 
