@@ -317,6 +317,7 @@ RUN apt-get -y update && \
     "openjdk-${openjdk_version}-jre-headless" \
     ca-certificates-java && \
     apt-get install -y tesseract-ocr && \
+    apt-get install -y tesseract-ocr-tur && \
     apt-get install -y imagemagick && \
     apt-get install -y libaio-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
