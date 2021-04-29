@@ -287,7 +287,9 @@ RUN pip install pandas_profiling \
     multiprocess \
     tensorflow-datasets \
     pmdarima \
-    opencv-contrib-python-headless \
+    opencv-contrib-python \
+    lckr-jupyterlab-variableinspector \
+    jupyterlab-system-monitor \
     snowballstemmer --no-cache-dir && \
     pip install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html --no-cache-dir && \ 
     fix-permissions "${CONDA_DIR}" && \
@@ -298,6 +300,8 @@ ENV XDG_CACHE_HOME="/home/${NB_USER}/.cache/"
 
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
+
+RUN jupyter labextension install jupyterlab-spreadsheet
 
 USER root
 
