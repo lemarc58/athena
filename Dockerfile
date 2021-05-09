@@ -4,7 +4,7 @@
 # Ubuntu 20.04 (focal)
 # https://hub.docker.com/_/ubuntu/?tab=tags&name=focal
 # OS/ARCH: linux/amd64
-ARG ROOT_CONTAINER=ubuntu:focal-20210401@sha256:5403064f94b617f7975a19ba4d1a1299fd584397f6ee4393d0e16744ed11aab1
+ARG ROOT_CONTAINER=ubuntu:focal-20210416@sha256:86ac87f73641c920fb42cc9612d4fb57b5626b56ea2a19b894d0673fd5b4f2e9
 
 ARG BASE_CONTAINER=$ROOT_CONTAINER
 FROM $BASE_CONTAINER
@@ -12,7 +12,7 @@ FROM $BASE_CONTAINER
 LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 ARG NB_USER="athena"
 ARG NB_UID="1000730000"
-ARG NB_GID="100"
+ARG NB_GID="1000730000"
 
 # Fix DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -40,12 +40,13 @@ ARG miniforge_version="${conda_version}-${miniforge_patch_number}"
 ARG miniforge_installer="${miniforge_python}-${miniforge_version}-Linux-${miniforge_arch}.sh"
 # Miniforge checksum
 ARG miniforge_checksum="cb8e6901051978498ed99fb936ae284e2e63fc512bac1787e9229031163da9b4"
+ARG openjdk_version="11"
 
 # Install all OS dependencies for notebook server that starts but lacks all
 # features (e.g., download as all possible file formats)
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get -q update \
- && apt-get install -yq --no-install-recommends \
+RUN apt-get -q update && \
+    apt-get install -yq --no-install-recommends \
     wget \
     ca-certificates \
     sudo \
@@ -53,7 +54,25 @@ RUN apt-get -q update \
     fonts-liberation \
     run-one \
     python3-dev \
- && apt-get clean && rm -rf /var/lib/apt/lists/*
+    build-essential \
+    vim-tiny \
+    git \
+    inkscape \
+    libsm6 \
+    libxext-dev \
+    libxrender1 \
+    lmodern \
+    netcat \
+    texlive-xetex \
+    texlive-fonts-recommended \
+    texlive-plain-generic \
+    tzdata \
+    unzip \
+    nano-tiny && \
+    apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
+    apt-get install --no-install-recommends -y "openjdk-${openjdk_version}-jre-headless" ca-certificates-java && \
+    apt-get install -y tesseract-ocr tesseract-ocr-tur imagemagick libaio-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
@@ -87,7 +106,8 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers && \
     sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers && \
-    useradd -m -s /bin/bash -N -l -u $NB_UID $NB_USER && \
+    groupmod -g $NB_GID users && \
+    useradd -m -s /bin/bash -g $NB_GID -l -u $NB_UID $NB_USER && \
     mkdir -p $CONDA_DIR && \
     chown $NB_USER:$NB_GID $CONDA_DIR && \
     chmod g+w /etc/passwd && \
@@ -134,7 +154,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
     'notebook=6.3.0' \
-    'jupyterhub=1.3.0' \
+    'jupyterhub=1.4.0' \
     'jupyterlab=3.0.14' && \
     conda clean --all -f -y && \
     npm cache clean --force && \
@@ -163,28 +183,6 @@ RUN sed -re "s/c.NotebookApp/c.ServerApp/g" \
     /etc/jupyter/jupyter_notebook_config.py > /etc/jupyter/jupyter_server_config.py
 
 RUN fix-permissions /etc/jupyter/
-
-# Install all OS dependencies for fully functional notebook server
-RUN apt-get update && apt-get install -yq --no-install-recommends \
-    build-essential \
-    vim-tiny \
-    git \
-    inkscape \
-    libsm6 \
-    libxext-dev \
-    libxrender1 \
-    lmodern \
-    netcat \
-    # ---- nbconvert dependencies ----
-    texlive-xetex \
-    texlive-fonts-recommended \
-    texlive-plain-generic \
-    # ----
-    tzdata \
-    unzip \
-    nano-tiny && \
-    apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create alternative for nano -> nano-tiny
 RUN update-alternatives --install /usr/bin/nano nano /bin/nano-tiny 10
@@ -311,20 +309,9 @@ USER root
 ARG spark_version="3.1.1"
 ARG hadoop_version="3.2"
 ARG spark_checksum="E90B31E58F6D95A42900BA4D288261D71F6C19FA39C1CB71862B792D1B5564941A320227F6AB0E09D946F16B8C1969ED2DEA2A369EC8F9D2D7099189234DE1BE"
-ARG openjdk_version="11"
 
 ENV APACHE_SPARK_VERSION="${spark_version}" \
     HADOOP_VERSION="${hadoop_version}"
-
-RUN apt-get -y update && \
-    apt-get install --no-install-recommends -y \
-    "openjdk-${openjdk_version}-jre-headless" \
-    ca-certificates-java && \
-    apt-get install -y tesseract-ocr && \
-    apt-get install -y tesseract-ocr-tur && \
-    apt-get install -y imagemagick && \
-    apt-get install -y libaio-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Spark installation
 WORKDIR /tmp
@@ -365,10 +352,6 @@ RUN unzip /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip -d /opt/oracl
     echo "export PATH=/opt/oracle/instantclient_21_1:$PATH" >> /etc/bash.bashrc && \ 
     sh -c "echo /opt/oracle/instantclient_21_1 > /etc/ld.so.conf.d/oracle-instantclient.conf" && \
     ldconfig
-
-ARG NB_GID_OC="1000730000"
-
-RUN groupmod -g $NB_GID_OC users
 
 USER $NB_UID
 
