@@ -53,7 +53,10 @@ RUN apt-get -q update && \
     locales \
     fonts-liberation \
     run-one \
-    python3-dev \
+    python3-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get -q update && \
+    apt-get install -yq --no-install-recommends \
     build-essential \
     vim-tiny \
     git \
@@ -61,7 +64,10 @@ RUN apt-get -q update && \
     libsm6 \
     libxext-dev \
     libxrender1 \
-    lmodern \
+    lmodern && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get -q update && \
+    apt-get install -yq --no-install-recommends \
     netcat \
     texlive-xetex \
     texlive-fonts-recommended \
@@ -69,9 +75,21 @@ RUN apt-get -q update && \
     tzdata \
     unzip \
     nano-tiny && \
-    apt-get install -y --no-install-recommends ffmpeg dvipng cm-super && \
-    apt-get install --no-install-recommends -y "openjdk-${openjdk_version}-jre-headless" ca-certificates-java && \
-    apt-get install -y tesseract-ocr tesseract-ocr-tur imagemagick libaio-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get -q update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    dvipng \
+    cm-super \
+    "openjdk-${openjdk_version}-jre-headless" \
+    ca-certificates-java && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get -q update && \
+    apt-get install -y \
+    tesseract-ocr \
+    tesseract-ocr-tur \
+    imagemagick \
+    libaio-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
@@ -155,7 +173,7 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 RUN conda install --quiet --yes \
     'notebook=6.3.0' \
     'jupyterhub=1.4.0' \
-    'jupyterlab=3.0.14' && \
+    'jupyterlab=3.0.15' && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
@@ -196,50 +214,74 @@ RUN conda install --quiet --yes \
     'bokeh=2.3.*' \
     'bottleneck=1.3.*' \
     'cloudpickle=1.6.*' \
-    'cython=0.29.*' \
+    'cython=0.29.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'dask=2021.4.*' \
     'dill=0.3.*' \
     'h5py=3.1.*' \
     'ipywidgets=7.6.*' \
-    'ipympl=0.7.*'\
+    'ipympl=0.7.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'matplotlib-base=3.4.*' \
     'numba=0.53.*' \
     'numexpr=2.7.*' \
     'pandas=1.2.3' \
     'patsy=0.5.*' \
-    'protobuf=3.15.*' \
+    'protobuf=3.15.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'pytables=3.6.*' \
     'scikit-image=0.18.*' \
     'scikit-learn=0.24.*' \
     'scipy=1.6.*' \
-    'seaborn=0.11.*' \
+    'seaborn=0.11.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'sqlalchemy=1.4.*' \
     'statsmodels=0.12.*' \
     'sympy=1.7.*' \
     'vincent=0.4.*' \
     'widgetsnbextension=3.5.*'\
     'xlrd=2.0.*' \
-    'cx_oracle=8.1.0' \
+    'cx_oracle=8.1.0' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'boto3=1.17.*' \
     'pyarrow=3.*.*' \
     'plotly=4.14.*' \
     'openpyxl' \
     'xlsxwriter' \
     'xgboost' \
-    'catboost' \
+    'catboost' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'hyperopt' \
     'lime' \
     'eli5' \
     'shap' \
     'dash' \
     'lz4' \
-    'python-blosc' \
+    'python-blosc' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'jupyter_bokeh' \
     'pdfminer' \
     'pep8' \
     'Pillow' \
     'pkginfo' \
-    'pylint' \
+    'pylint' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'pytesseract' \
     'pytest' \
     'pytest-astropy' \
@@ -247,7 +289,10 @@ RUN conda install --quiet --yes \
     'sklearn2pmml' \
     'sortedcollections' \
     'Sphinx' \
-    'wordcloud' \
+    'wordcloud' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn
+RUN conda install --quiet --yes \
     'yellowbrick' \
     'zbar' \
     'xarray' && \
@@ -255,41 +300,48 @@ RUN conda install --quiet --yes \
     conda install -c conda-forge pystan && \
     conda install -c conda-forge fbprophet && \
     conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
 # Install Python 3 pip packages
-RUN pip install pandas_profiling \
+RUN pip install --no-cache-dir \
+    pandas_profiling \
     pyspark \
     trino \
     scikit-optimize \
-    impyute \
+    impyute
+RUN pip install --no-cache-dir \
     tensorflow \
     nltk \
-    cufflinks \
     dash-bootstrap-components \
-    dataframe-image \
+    cufflinks \
+    dataframe-image
+RUN pip install --no-cache-dir \
     diagrams \
     fancyimpute \
     fasttext \
     gensim \
-    glob2 \
-    imbalanced-learn \
-    ing-theme-matplotlib \
+    glob2
+RUN pip install --no-cache-dir \
     ITU-Turkish-NLP-Pipeline-Caller \
     JPype1 \
     kerasplotlib \
     knnimpute \
-    lightgbm \
+    lightgbm
+RUN pip install --no-cache-dir \
     multidict \
     multiprocess \
     tensorflow-datasets \
     pmdarima \
-    opencv-contrib-python \
+    opencv-contrib-python
+RUN pip install --no-cache-dir \
     lckr-jupyterlab-variableinspector \
     jupyterlab-system-monitor \
-    snowballstemmer --no-cache-dir && \
-    pip install torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html --no-cache-dir && \ 
+    snowballstemmer \
+    imbalanced-learn \
+    ing-theme-matplotlib
+RUN pip install --no-cache-dir torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html && \ 
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
