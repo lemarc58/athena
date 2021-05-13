@@ -229,7 +229,7 @@ RUN conda install --quiet --yes \
     'matplotlib-base=3.4.*' \
     'numba=0.53.*' \
     'numexpr=2.7.*' \
-    'pandas=1.2.3' \
+    'pandas=1.2.*' \
     'patsy=0.5.*' \
     'protobuf=3.15.*' && \
     conda clean --all -f -y && \
