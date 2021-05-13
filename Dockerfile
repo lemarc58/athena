@@ -216,16 +216,20 @@ RUN conda install --quiet --yes \
     'cloudpickle=1.6.*' \
     'cython=0.29.*' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
     'dask=2021.4.*' \
     'dill=0.3.*' \
-    'h5py=3.1.*' \
-    'ipywidgets=7.6.*' \
-    'ipympl=0.7.*' && \
+    'h5py=3.1.*' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
+    'ipywidgets=7.6.*' \
+    'ipympl=0.7.*' \
     'matplotlib-base=3.4.*' \
     'numba=0.53.*' \
     'numexpr=2.7.*' \
@@ -233,35 +237,43 @@ RUN conda install --quiet --yes \
     'patsy=0.5.*' \
     'protobuf=3.15.*' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
     'pytables=3.6.*' \
     'scikit-image=0.18.*' \
     'scikit-learn=0.24.*' \
     'scipy=1.6.*' \
-    'seaborn=0.11.*' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
-RUN conda install --quiet --yes \
+    'seaborn=0.11.*' \
     'sqlalchemy=1.4.*' \
-    'statsmodels=0.12.*' \
+    'statsmodels=0.12.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
+RUN conda install --quiet --yes \
     'sympy=1.7.*' \
     'vincent=0.4.*' \
     'widgetsnbextension=3.5.*'\
     'xlrd=2.0.*' \
-    'cx_oracle=8.1.0' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
-RUN conda install --quiet --yes \
+    'cx_oracle=8.1.0' \
     'boto3=1.17.*' \
     'pyarrow=3.*.*' \
-    'plotly=4.14.*' \
+    'plotly=4.14.*' && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
+RUN conda install --quiet --yes \
     'openpyxl' \
     'xlsxwriter' \
     'xgboost' \
     'catboost' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
     'hyperopt' \
     'lime' \
@@ -271,7 +283,9 @@ RUN conda install --quiet --yes \
     'lz4' \
     'python-blosc' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
     'jupyter_bokeh' \
     'pdfminer' \
@@ -280,7 +294,9 @@ RUN conda install --quiet --yes \
     'pkginfo' \
     'pylint' && \
     conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
     'pytesseract' \
     'pytest' \
@@ -289,14 +305,15 @@ RUN conda install --quiet --yes \
     'sklearn2pmml' \
     'sortedcollections' \
     'Sphinx' \
-    'wordcloud' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn
-RUN conda install --quiet --yes \
+    'wordcloud' \
     'yellowbrick' \
     'zbar' \
     'xarray' && \
-    conda install -c anaconda ephem && \
+    conda clean --all -f -y && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
+RUN conda install -c anaconda ephem && \
     conda install -c conda-forge pystan && \
     conda install -c conda-forge fbprophet && \
     conda clean --all -f -y && \
@@ -310,37 +327,49 @@ RUN pip install --no-cache-dir \
     pyspark \
     trino \
     scikit-optimize \
-    impyute
+    impyute && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     tensorflow \
     nltk \
     dash-bootstrap-components \
     cufflinks \
-    dataframe-image
+    dataframe-image && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     diagrams \
     fancyimpute \
     fasttext \
     gensim \
-    glob2
+    glob2 && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     ITU-Turkish-NLP-Pipeline-Caller \
     JPype1 \
     kerasplotlib \
     knnimpute \
-    lightgbm
+    lightgbm && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     multidict \
     multiprocess \
     tensorflow-datasets \
     pmdarima \
-    opencv-contrib-python
+    opencv-contrib-python && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     lckr-jupyterlab-variableinspector \
     jupyterlab-system-monitor \
     snowballstemmer \
     imbalanced-learn \
-    ing-theme-matplotlib
+    ing-theme-matplotlib && \ 
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html && \ 
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
