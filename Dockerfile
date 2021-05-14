@@ -53,21 +53,21 @@ RUN apt-get -q update && \
     locales \
     fonts-liberation \
     run-one \
-    python3-dev && \
+    python3-dev \
+    build-essential \
+    vim-tiny && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends \
-    build-essential \
-    vim-tiny \
     git \
     inkscape \
     libsm6 \
     libxext-dev \
-    libxrender1 \
-    lmodern && \
+    libxrender1 &&\
     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends \
+    lmodern \
     netcat \
     texlive-xetex \
     texlive-fonts-recommended \
@@ -79,13 +79,13 @@ RUN apt-get -q update && \
 RUN apt-get -q update && \
     apt-get install -y --no-install-recommends \
     ffmpeg \
-    dvipng \
-    cm-super \
-    "openjdk-${openjdk_version}-jre-headless" \
-    ca-certificates-java && \
+    dvipng && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get -q update && \
     apt-get install -y \
+    cm-super \
+    "openjdk-${openjdk_version}-jre-headless" \
+    ca-certificates-java \
     tesseract-ocr \
     tesseract-ocr-tur \
     imagemagick \
@@ -279,25 +279,20 @@ RUN conda install --quiet --yes \
     'lime' \
     'eli5' \
     'shap' \
-    'dash' \
-    'lz4' \
-    'python-blosc' && \
+    'dash' && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
+    'lz4' \
+    'python-blosc' \
     'jupyter_bokeh' \
     'pdfminer' \
     'pep8' \
     'Pillow' \
     'pkginfo' \
-    'pylint' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN conda install --quiet --yes \
+    'pylint' \
     'pytesseract' \
     'pytest' \
     'pytest-astropy' \
@@ -309,12 +304,12 @@ RUN conda install --quiet --yes \
     'yellowbrick' \
     'zbar' \
     'xarray' && \
+    conda install -c anaconda ephem && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
-RUN conda install -c anaconda ephem && \
-    conda install -c conda-forge pystan && \
+RUN conda install -c conda-forge pystan && \
     conda install -c conda-forge fbprophet && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
@@ -328,22 +323,24 @@ RUN pip install --no-cache-dir \
     trino \
     scikit-optimize \
     impyute && \ 
+    rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
-    tensorflow \
+    tensorflow && \
+    rm -rf /home/$NB_USER/.cache/pip/http && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
+RUN pip install --no-cache-dir \
     nltk \
     dash-bootstrap-components \
     cufflinks \
-    dataframe-image && \ 
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN pip install --no-cache-dir \
-    diagrams \
+    dataframe-image \ 
     fancyimpute \
     fasttext \
     gensim \
-    glob2 && \ 
+    glob2 && \
+    rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
@@ -351,26 +348,22 @@ RUN pip install --no-cache-dir \
     JPype1 \
     kerasplotlib \
     knnimpute \
-    lightgbm && \ 
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN pip install --no-cache-dir \
+    lightgbm \
     multidict \
     multiprocess \
     tensorflow-datasets \
     pmdarima \
-    opencv-contrib-python && \ 
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN pip install --no-cache-dir \
+    opencv-contrib-python \
     lckr-jupyterlab-variableinspector \
     jupyterlab-system-monitor \
     snowballstemmer \
     imbalanced-learn \
     ing-theme-matplotlib && \ 
+    rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir torch==1.8.1+cpu torchvision==0.9.1+cpu torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html && \ 
+    rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
@@ -380,7 +373,9 @@ ENV XDG_CACHE_HOME="/home/${NB_USER}/.cache/"
 RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
 
-RUN jupyter labextension install jupyterlab-spreadsheet
+RUN jupyter labextension install jupyterlab-spreadsheet && \
+    npm cache clean --force && \
+    rm -rf /home/$NB_USER/.cache/yarn
 
 USER root
 
