@@ -47,6 +47,7 @@ ARG openjdk_version="11"
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends \
+    tini \
     wget \
     ca-certificates \
     sudo \
@@ -129,15 +130,15 @@ RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su && \
     mkdir -p $CONDA_DIR && \
     chown $NB_USER:$NB_GID $CONDA_DIR && \
     chmod g+w /etc/passwd && \
-    fix-permissions $HOME && \
-    fix-permissions $CONDA_DIR
+    fix-permissions ${HOME} && \
+    fix-permissions ${CONDA_DIR}
 
 USER $NB_UID
 ARG PYTHON_VERSION=default
 
 # Setup work directory for backward-compatibility
 RUN mkdir "/home/$NB_USER/work" && \
-    fix-permissions "/home/$NB_USER"
+    fix-permissions "/home/${NB_USER}"
 
 # Install conda as jovyan and check the sha256 sum provided on the download site
 WORKDIR /tmp
@@ -155,14 +156,12 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
     conda list python | grep '^python ' | tr -s ' ' | cut -d '.' -f 1,2 | sed 's/$/.*/' >> $CONDA_DIR/conda-meta/pinned && \
     conda install --quiet --yes \
     "conda=${CONDA_VERSION}" \
-    'pip' \
-    'tini=0.18.0' && \
+    'pip' && \
     conda update --all --quiet --yes && \
-    conda list tini | grep tini | tr -s ' ' | cut -d ' ' -f 1,2 >> $CONDA_DIR/conda-meta/pinned && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    fix-permissions ${CONDA_DIR} && \
+    fix-permissions /home/${NB_USER}
 
 # Install Jupyter Notebook, Lab, and Hub
 # Generate a notebook server config
@@ -171,16 +170,16 @@ RUN wget --quiet "https://github.com/conda-forge/miniforge/releases/download/${m
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
 RUN conda install --quiet --yes \
-    'notebook=6.3.0' \
-    'jupyterhub=1.4.0' \
-    'jupyterlab=3.0.15' && \
+    'notebook=6.4.0' \
+    'jupyterhub=1.4.1' \
+    'jupyterlab=3.0.16' && \
     conda clean --all -f -y && \
     npm cache clean --force && \
     jupyter notebook --generate-config && \
     jupyter lab clean && \
     rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions $CONDA_DIR && \
-    fix-permissions /home/$NB_USER
+    fix-permissions ${CONDA_DIR} && \
+    fix-permissions /home/${NB_USER}
 
 EXPOSE 8888
 
@@ -209,11 +208,12 @@ USER $NB_UID
 
 # Install Python 3 conda packages
 RUN conda install --quiet --yes \
+    'altair=4.1.*' \
     'beautifulsoup4=4.9.*' \
-    'conda-forge::blas=*=openblas' \
     'bokeh=2.3.*' \
     'bottleneck=1.3.*' \
     'cloudpickle=1.6.*' \
+    'conda-forge::blas=*=openblas' \
     'cython=0.29.*' && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
@@ -222,14 +222,14 @@ RUN conda install --quiet --yes \
 RUN conda install --quiet --yes \
     'dask=2021.4.*' \
     'dill=0.3.*' \
-    'h5py=3.1.*' && \
+    'h5py=3.2.*' && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
-    'ipywidgets=7.6.*' \
     'ipympl=0.7.*' \
+    'ipywidgets=7.6.*' \
     'matplotlib-base=3.4.*' \
     'numba=0.53.*' \
     'numexpr=2.7.*' \
@@ -253,13 +253,12 @@ RUN conda install --quiet --yes \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN conda install --quiet --yes \
-    'sympy=1.7.*' \
-    'vincent=0.4.*' \
+    'sympy=1.8.*' \
     'widgetsnbextension=3.5.*'\
     'xlrd=2.0.*' \
-    'cx_oracle=8.1.0' \
+    'cx_oracle=8.2.0' \
     'boto3=1.17.*' \
-    'pyarrow=3.*.*' \
+    'pyarrow=4.0.*' \
     'plotly=4.14.*' && \
     conda clean --all -f -y && \
     rm -rf /home/$NB_USER/.cache/yarn && \
