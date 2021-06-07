@@ -56,11 +56,14 @@ RUN apt-get -q update && \
     run-one \
     python3-dev \
     build-essential \
+    telnet \
     vim-tiny && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends \
     git \
+    dnsutils \
+    iputils-ping \
     inkscape \
     libsm6 \
     libxext-dev \
