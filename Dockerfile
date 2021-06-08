@@ -317,6 +317,11 @@ RUN conda install -c conda-forge pystan && \
     rm -rf /home/$NB_USER/.cache/yarn && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
+RUN conda install --quiet --yes \
+    'tensorflow=2.4.1' && \
+    rm -rf /home/$NB_USER/.cache/yarn && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
 
 # Install Python 3 pip packages
 RUN pip install --no-cache-dir \
@@ -325,11 +330,6 @@ RUN pip install --no-cache-dir \
     trino \
     scikit-optimize \
     impyute && \ 
-    rm -rf /home/$NB_USER/.cache/pip/http && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN pip install --no-cache-dir \
-    tensorflow && \
     rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
