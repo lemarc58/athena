@@ -67,7 +67,7 @@ RUN apt-get -q update && \
     inkscape \
     libsm6 \
     libxext-dev \
-    libxrender1 &&\
+    libxrender1 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends \
