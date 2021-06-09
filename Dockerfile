@@ -281,12 +281,7 @@ RUN conda install --quiet --yes \
     'lime' \
     'eli5' \
     'shap' \
-    'dash' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN conda install --quiet --yes \
+    'dash' \
     'lz4' \
     'python-blosc' \
     'jupyter_bokeh' \
