@@ -217,12 +217,7 @@ RUN conda install --quiet --yes \
     'bottleneck=1.3.*' \
     'cloudpickle=1.6.*' \
     'conda-forge::blas=*=openblas' \
-    'cython=0.29.*' && \
-    conda clean --all -f -y && \
-    rm -rf /home/$NB_USER/.cache/yarn && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN conda install --quiet --yes \
+    'cython=0.29.*' \
     'dask=2021.4.*' \
     'dill=0.3.*' \
     'h5py=3.2.*' && \
