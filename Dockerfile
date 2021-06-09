@@ -316,7 +316,6 @@ RUN pip install --no-cache-dir \
     fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
     pandas_profiling \
-    jupyter-tensorboard \
     trino \
     scikit-optimize \
     impyute \ 
@@ -359,7 +358,6 @@ RUN MPLBACKEND=Agg python -c "import matplotlib.pyplot" && \
     fix-permissions "/home/${NB_USER}"
 
 RUN jupyter labextension install jupyterlab-spreadsheet && \
-    jupyter labextension install jupyterlab_tensorboard && \
     npm cache clean --force && \
     rm -rf /home/$NB_USER/.cache/yarn
 
