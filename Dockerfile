@@ -340,6 +340,7 @@ RUN pip install --no-cache-dir \
     jupyterlab-system-monitor \
     snowballstemmer \
     imbalanced-learn \
+    ipyrest \
     ing-theme-matplotlib && \ 
     rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
