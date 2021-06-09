@@ -320,15 +320,15 @@ RUN conda install --quiet --yes \
 
 # Install Python 3 pip packages
 RUN pip install --no-cache-dir \
-    pandas_profiling \
-    pyspark \
-    trino \
-    scikit-optimize \
-    impyute && \ 
+    pyspark && \
     rm -rf /home/$NB_USER/.cache/pip/http && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 RUN pip install --no-cache-dir \
+    pandas_profiling \
+    trino \
+    scikit-optimize \
+    impyute \ 
     nltk \
     dash-bootstrap-components \
     cufflinks \
