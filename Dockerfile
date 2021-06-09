@@ -184,12 +184,6 @@ RUN conda install --quiet --yes \
     fix-permissions ${CONDA_DIR} && \
     fix-permissions /home/${NB_USER}
 
-EXPOSE 8888
-
-# Configure container startup
-ENTRYPOINT ["tini", "-g", "--"]
-CMD ["start-notebook.sh"]
-
 # Copy local files as late as possible to avoid cache busting
 COPY start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
@@ -420,3 +414,9 @@ RUN unzip /opt/oracle/instantclient-basic-linux.x64-21.1.0.0.0.zip -d /opt/oracl
 USER $NB_UID
 
 WORKDIR $HOME
+
+EXPOSE 8888
+
+# Configure container startup
+ENTRYPOINT ["tini", "-g", "--"]
+CMD ["start-notebook.sh"]
