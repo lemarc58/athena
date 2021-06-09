@@ -336,11 +336,7 @@ RUN pip install --no-cache-dir \
     fancyimpute \
     fasttext \
     gensim \
-    glob2 && \
-    rm -rf /home/$NB_USER/.cache/pip/http && \
-    fix-permissions "${CONDA_DIR}" && \
-    fix-permissions "/home/${NB_USER}"
-RUN pip install --no-cache-dir \
+    glob2 \
     ITU-Turkish-NLP-Pipeline-Caller \
     JPype1 \
     kerasplotlib \
