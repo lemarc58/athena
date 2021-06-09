@@ -11,8 +11,8 @@ FROM $BASE_CONTAINER
 
 LABEL maintainer="Jupyter Project <jupyter@googlegroups.com>"
 ARG NB_USER="athena"
-ARG NB_UID="1000730000"
-ARG NB_GID="1000730000"
+ARG NB_UID="1000820000"
+ARG NB_GID="1000820000"
 
 # Fix DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
